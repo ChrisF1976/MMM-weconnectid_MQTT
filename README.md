@@ -11,6 +11,12 @@ Supports **pure electric vehicles** (ID.3, ID.4, ID.5, ID.7, e-Golf, …) and **
 
 ---
 
+## Screenshot
+
+![Screenshot](./SampleImage.png)
+
+---
+
 ## How it works
 
 ```
