@@ -158,6 +158,7 @@ User=chris
 WorkingDirectory=/home/chris/MagicMirror/modules/MMM-weconnectid_MQTT
 ExecStart=/usr/bin/python3 /home/chris/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.py
 ```
+(replace `python3` with `python3.9` etc. if needed)
 
 Save with `Ctrl+O`, `Enter`, `Ctrl+X`.
 
