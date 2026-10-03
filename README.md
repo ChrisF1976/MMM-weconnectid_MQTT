@@ -38,7 +38,7 @@ MMM-weconnectid_MQTT   (displayed on MagicMirror)
 | Software | Install |
 |---|---|
 | MagicMirror² | https://magicmirror.builders/ |
-| Python 3.9+ | `sudo apt install python3` |
+| Python 3.9+ | replace `python3` with `python3.9` etc. if needed|
 | Mosquitto MQTT broker | `sudo apt install mosquitto mosquitto-clients` |
 | paho-mqtt | `sudo pip3 install paho-mqtt --break-system-packages` |
 | CarConnectivity connector | see below |
