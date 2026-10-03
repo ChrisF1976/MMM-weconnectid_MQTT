@@ -132,24 +132,51 @@ mosquitto_sub -h localhost -t "vwdata/#" -v
 
 ### Step 7 – Install as a systemd service (autostart)
 
+This makes `vw_mqtt.py` start automatically every time the Raspberry Pi boots.
+
+**7a – Find out your username and Python path:**
+```bash
+whoami
+which python3
+```
+Example output: `chris` and `/usr/bin/python3`
+
+**7b – Copy the service file:**
 ```bash
 sudo cp ~/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.service \
         /etc/systemd/system/vw_mqtt.service
 ```
 
-Edit the service file and replace `pi` with your username and adjust the Python path:
+**7c – Edit the service file** and replace the three placeholder values:
 ```bash
 sudo nano /etc/systemd/system/vw_mqtt.service
-# Check your Python path with: which python3
 ```
 
-Enable and start:
+Change these lines (use the values from step 7a):
+```ini
+User=chris
+WorkingDirectory=/home/chris/MagicMirror/modules/MMM-weconnectid_MQTT
+ExecStart=/usr/bin/python3 /home/chris/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.py
+```
+
+Save with `Ctrl+O`, `Enter`, `Ctrl+X`.
+
+**7d – Enable and start the service:**
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable vw_mqtt
 sudo systemctl start vw_mqtt
 sudo systemctl status vw_mqtt
 ```
+
+You should see `active (running)` in the status output.
+
+**7e – Check the live logs** to confirm data is being fetched:
+```bash
+sudo journalctl -u vw_mqtt -f
+```
+
+You should see lines like `vwdata/mycar/soc = 80`. Press `Ctrl+C` to exit.
 
 ### Step 8 – Add the module to config.js
 
