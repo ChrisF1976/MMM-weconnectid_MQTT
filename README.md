@@ -192,7 +192,7 @@ You should see lines like `vwdata/mycar/soc = 80`. Press `Ctrl+C` to exit.
         fields: '{"SOC":"remainingSoC","Updated":"timestamp","Mileage":"odometer","Charge time":"remainingTime","Target SOC":"targetSoC","Power":"chargePower","km/h":"chargekmph"}',
         fields_charging: ["Charge time", "Target SOC", "Power", "km/h"],
         number: 4,
-        python: "python3",
+        python: "python3",                //replace python3 with python3.9 etc. if needed
         maxHeight: "200px",
         maxWidth: "400px",
         remainingSOCyellow: 60,
