@@ -1,0 +1,16 @@
+[Unit]
+Description=VW EU Data Act MQTT Bridge
+After=network.target mosquitto.service
+
+[Service]
+Type=simple
+# Change "pi" to your username
+User=pi
+WorkingDirectory=/home/pi/MagicMirror/modules/MMM-weconnectid_MQTT
+# Adjust the python path if needed (check with: which python3)
+ExecStart=/usr/local/bin/python3 /home/pi/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.py
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

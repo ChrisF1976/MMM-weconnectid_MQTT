@@ -1,0 +1,23 @@
+{
+    "LOADING":      "Laden...",
+    "SOC":          "Akku",
+    "RANGE":        "Reichweite",
+    "ODOMETER":     "Kilometerstand",
+    "LOADING TIME": "Ladezeit",
+    "TARGET SOC":   "Ziel-Akku",
+    "LOADING POWER":"Ladeleistung",
+    "KMPH":         "km/h",
+    "POSITION":     "Position",
+    "CLIMATE":      "Klimatisierung",
+    "Stand":        "Stand",
+    "FUEL":         "Tank",
+    "TEMP":         "Temp",
+    "charging":              "Lädt",
+    "readyForCharging":      "Bereit",
+    "conservation":          "Erhaltung",
+    "off":                   "Aus",
+    "error":                 "Fehler",
+    "discharging":           "Entlädt",
+    "DRIVING":               "Fährt",
+    "UNKNOWN":               "Unbekannt"
+}

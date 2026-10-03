@@ -1,0 +1,23 @@
+{
+    "LOADING":      "Chargement...",
+    "SOC":          "Batterie",
+    "RANGE":        "Autonomie",
+    "ODOMETER":     "Kilométrage",
+    "LOADING TIME": "Temps de charge",
+    "TARGET SOC":   "Objectif batterie",
+    "LOADING POWER":"Puissance",
+    "KMPH":         "km/h",
+    "POSITION":     "Position",
+    "CLIMATE":      "Climatisation",
+    "Stand":        "Mis à jour",
+    "FUEL":         "Carburant",
+    "TEMP":         "Temp",
+    "charging":              "En charge",
+    "readyForCharging":      "Prêt",
+    "conservation":          "Conservation",
+    "off":                   "Éteint",
+    "error":                 "Erreur",
+    "discharging":           "Décharge",
+    "DRIVING":               "En route",
+    "UNKNOWN":               "Inconnu"
+}

@@ -1,0 +1,23 @@
+{
+    "LOADING":      "Loading...",
+    "SOC":          "SOC",
+    "RANGE":        "Range",
+    "ODOMETER":     "Mileage",
+    "LOADING TIME": "Charge time",
+    "TARGET SOC":   "Target SOC",
+    "LOADING POWER":"Charge power",
+    "KMPH":         "km/h",
+    "POSITION":     "Position",
+    "CLIMATE":      "Climate",
+    "Stand":        "Updated",
+    "FUEL":         "Fuel",
+    "TEMP":         "Temp",
+    "charging":              "Charging",
+    "readyForCharging":      "Ready",
+    "conservation":          "Conservation",
+    "off":                   "Off",
+    "error":                 "Error",
+    "discharging":           "Discharging",
+    "DRIVING":               "Driving",
+    "UNKNOWN":               "Unknown"
+}
