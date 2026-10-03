@@ -53,10 +53,28 @@ MMM-weconnectid_MQTT   (displayed on MagicMirror)
 
 ### Step 2 – Install the Python connector
 
+First check which Python version you will use:
 ```bash
-sudo pip3 install --no-deps --break-system-packages carconnectivity
-sudo pip3 install --no-deps --break-system-packages \
+python3 --version
+# or if you plan to use python3.9:
+python3.9 --version
+```
+
+Install the connector for **that exact Python version** (replace `python3` with `python3.9` etc. if needed):
+
+```bash
+sudo python3 -m pip install --no-deps --break-system-packages carconnectivity
+sudo python3 -m pip install --no-deps --break-system-packages \
     git+https://github.com/mikrohard/CarConnectivity-connector-vw-eu-data-act.git
+sudo python3 -m pip install --break-system-packages paho-mqtt
+```
+
+> ⚠️ The Python version used here **must match** the `python` setting in `config.js`.  
+> Example: if you set `python: "python3.9"` in config.js, install with `sudo python3.9 -m pip install ...`
+
+Verify:
+```bash
+python3 -c "from carconnectivity_connectors.vw_eu_data_act.client import EudaApiClient; print('OK')"
 ```
 
 ### Step 3 – Install Mosquitto
