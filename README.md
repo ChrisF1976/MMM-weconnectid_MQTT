@@ -95,7 +95,7 @@ sudo systemctl start mosquitto
 
 ```bash
 cd ~/MagicMirror/modules
-git clone https://github.com/YOUR_USERNAME/MMM-weconnectid_MQTT.git
+git clone https://github.com/ChrisF1976/MMM-weconnectid_MQTT.git
 ```
 
 ### Step 5 – Configure vw_mqtt.py
