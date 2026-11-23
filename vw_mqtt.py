@@ -203,7 +203,24 @@ def fetch_and_publish(api: EudaApiClient, car: dict, mqttc, cache: dict) -> None
         mqttc.publish(f"{topic}/car_captured_time", latest_ts, retain=True)
         log.info("  %s/car_captured_time = %s", topic, latest_ts)
 
-    field_map = FIELD_MAP_HYBRID if car_type == "hybrid" else FIELD_MAP_ELECTRIC
+    if any(k in fields for k in ("battery_state_report.soc", "battery_level_HV.value", "mileage.value")):
+        data_format = "nested"          # ID.3, ID.4, ID.7 ...
+        field_map = FIELD_MAP_ELECTRIC
+    elif any(k in fields for k in ("state_of_charge", "mileage", "cruising_range_primary_engine")):
+        data_format = "flat"            # eGolf, Multivan, andere Hybride ...
+        field_map = dict(FIELD_MAP_HYBRID)
+        if "fuel_level_current_level" not in fields:   # reines E-Auto (eGolf)
+            field_map["cruising_range_primary_engine"] = "range_electric"
+            field_map.pop("cruising_range_secondary_engine", None)
+    else:
+        data_format = None
+        field_map = {}
+        log.warning("[%s] No known fields found in this dataset.", vin)
+
+    if data_format:
+        mqttc.publish(f"{topic}/data_format", data_format, retain=True)
+        log.info("  %s/data_format = %s", topic, data_format)
+        
     sent = 0
     for field_name, subtopic in field_map.items():
         if field_name in fields:
@@ -232,6 +249,7 @@ def main() -> None:
                     password=car["password"],
                     country="de",
                     language="de",
+                    brand=car.get("brand", "VOLKSWAGEN_PASSENGER_CARS"),
                 )
                 api.login()
                 fetch_and_publish(api, car, mqttc, cache)
