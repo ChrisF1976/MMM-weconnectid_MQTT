@@ -154,29 +154,35 @@ Module.register("MMM-weconnectid_MQTT", {
             for (const x in fieldJSON) {
                 if ((this.Vehicle.chargingState === "charging" && this.config.fields_charging.includes(x)) || !this.config.fields_charging.includes(x)) {
                     if (counter === 0) {
-                        var tr_header = document.createElement("tr");
-                        table.appendChild(tr_header);
-                        var tr_text = document.createElement("tr");
-                        table.appendChild(tr_text);
+                        var tr_row = document.createElement("tr");
+                        table.appendChild(tr_row);
                     }
 
-                    var th = document.createElement("th");
-                    th.id = "text-table";
-                    th.style.width = (100 / this.config.number) + "%";
-                    var text = document.createElement("p");
-                    text.innerHTML = this.translate(x);
-                    text.id = "info-header";
-                    th.appendChild(text);
-                    tr_header.appendChild(th);
+                    var cell = document.createElement("td");
+                    cell.style.width = (100 / this.config.number) + "%";
+                    if (counter === 0) {
+                        cell.style.textAlign = "left";
+                    } else if (counter === this.config.number - 1) {
+                        cell.style.textAlign = "right";
+                    } else {
+                        cell.style.textAlign = "center";
+                    }
 
-                    var td = document.createElement("td");
-                    td.id = "text-table";
-                    td.style.width = (100 / this.config.number) + "%";
-                    var text = document.createElement("p");
-                    text.innerHTML = this.translate(this.Vehicle[fieldJSON[x]]);
-                    text.id = "info";
-                    td.appendChild(text);
-                    tr_text.appendChild(td);
+                    var box = document.createElement("div");
+                    box.classList.add("info-box");
+
+                    var head = document.createElement("p");
+                    head.classList.add("info-header");
+                    head.innerHTML = this.translate(x);
+                    box.appendChild(head);
+
+                    var value = document.createElement("p");
+                    value.classList.add("info-value");
+                    value.innerHTML = this.translate(this.Vehicle[fieldJSON[x]]);
+                    box.appendChild(value);
+
+                    cell.appendChild(box);
+                    tr_row.appendChild(cell);
 
                     if (counter + 1 < this.config.number) {
                         counter = counter + 1;
