@@ -1,0 +1,18 @@
+# Dependencies and OS files
+node_modules/
+.DS_Store
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Local runtime data and secrets - never publish
+.identifier_cache.json
+vw_dataset_*.json
+config.local.py
+*.local
+.env
+
+# Vehicle pictures (personal)
+Pictures/
