@@ -1,6 +1,6 @@
 {
   "name": "MMM-weconnectid_MQTT",
-  "version": "1.0.0",
+    "version": "1.0.1",
   "description": "A MagicMirror² module that displays live vehicle data from Volkswagen Group cars (VW, Audi, SEAT, Škoda, Cupra) using the EU Data Act portal as data source.",
   "main": "MMM-weconnectid_MQTT.js",
   "scripts": {
