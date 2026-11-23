@@ -104,8 +104,8 @@ FIELD_MAP_ELECTRIC = {
 FIELD_MAP_HYBRID = {
     "state_of_charge":                 "soc",
     "fuel_level_current_level":        "fuel_level",
-    "cruising_range_primary_engine":   "range_electric",
-    "cruising_range_secondary_engine": "range_fuel",
+    "cruising_range_primary_engine":   "range_fuel",
+    "cruising_range_secondary_engine": "range_electric",
     "cruising_range_combined":         "range_combined",
     "charging_state":                  "charging_state",
     "remaining_charging_time":         "remaining_charge_time",
