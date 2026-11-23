@@ -269,19 +269,55 @@ The `<module-identifier>` is printed in the MagicMirror developer console when t
 
 ## Troubleshooting
 
-**Module shows "Loading..."**  
+### Wrong Python version
+→ Set `python: "python3.9"` (or whichever version has the dependencies installed) in `config.js`.
+
+### Login errors in the log (`HTTP 406` or "consent question")**
+
+Symptom: `sudo journalctl -u vw_mqtt` shows one of these messages every 15 minutes, and the mirror keeps showing old values:
+
+```
+Error: Login rejected (HTTP 406)
+Error: Login interrupted: the identity provider asks this account a consent question (marketing). ...
+```
+
+The service cannot log in to the VW portal, so no new data is published. The old values stay in MQTT, which is why the display looks "frozen" instead of showing an error.
+
+Two causes have been observed. Both may appear after VW changes something on the portal side.
+
+1. **The VW login asks for a consent.** Open https://eu-data-act.drivesomethinggreater.com in a normal browser, log in with the same VW account and answer the question that appears (for example a marketing consent, or "Allow"). Do this for **every** account listed in `vw_mqtt.py`.
+2. **The connector is outdated.** VW has changed its login flow more than once, and older connector versions then fail with `HTTP 406`. Update the connector for the same Python version that runs the service:
+
+```bash
+python3 -m pip show carconnectivity-connector-vw-eu-data-act | head -3
+sudo python3 -m pip install --no-deps --upgrade --force-reinstall \
+    git+https://github.com/mikrohard/CarConnectivity-connector-vw-eu-data-act.git
+```
+
+(Use `python3.9` instead of `python3` if that is the Python you configured.)
+
+After either fix, restart the service and check the log:
+
+```bash
+sudo systemctl restart vw_mqtt
+sudo journalctl -u vw_mqtt -n 40 --no-pager
+```
+
+Lines like `vwdata/<topic>/soc = ...` mean the login works again. If one account works and another still fails, the problem is specific to that account.
+
+You can test a single account without the service by running `vw_check.py` from this repository.
+
+### Module shows "Loading..."  
 → Check if `vw_mqtt.py` is running: `sudo systemctl status vw_mqtt`  
 → Check MQTT data: `mosquitto_sub -h localhost -t "vwdata/#" -v`
 
-**Data is not updating**  
+### Data is not updating**  
 → The VW EU Data Act portal only delivers data when the vehicle is active (driving or charging). Parked vehicles may not receive updates for hours.  
 → Check the portal: https://eu-data-act.drivesomethinggreater.com – new ZIP files should appear every ~15 minutes when the car is active.
 
-**HTTP 500 errors from VW portal**  
+### HTTP 500 errors from VW portal**  
 → The portal occasionally has outages. `vw_mqtt.py` retries automatically every 15 minutes.
 
-**Wrong Python version**  
-→ Set `python: "python3.9"` (or whichever version has the dependencies installed) in `config.js`.
 
 ---
 
