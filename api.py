@@ -72,6 +72,10 @@ def get(key, default=0):
 # ---------------------------------------------------------------------------
 is_hybrid = "fuel_level" in received
 
+# Data format published by vw_mqtt.py ("flat" or "nested").
+# Older retained data has no such topic - fall back to the old rule.
+is_flat = received.get("data_format", "flat" if is_hybrid else "nested") == "flat"
+
 # ---------------------------------------------------------------------------
 # Charging state – normalise to the values MMM-weconnectid.js expects
 # ---------------------------------------------------------------------------
@@ -124,7 +128,7 @@ try:
         electric_range = int(float(get("range_electric",  0)))
         gasoline_range = int(float(get("range_fuel",      0)))
     else:
-        remaining_km   = int(float(get("range_km", 0)))
+        remaining_km   = int(float(get("range_km", get("range_electric", 0))))
         electric_range = remaining_km
         gasoline_range = 0
 except (ValueError, TypeError):
@@ -145,7 +149,7 @@ except (ValueError, TypeError):
 # ---------------------------------------------------------------------------
 try:
     charge_power_raw = float(get("charge_power", 0))
-    charge_power = charge_power_raw / 10.0 if is_hybrid else charge_power_raw
+    charge_power = charge_power_raw / 10.0 if is_flat else charge_power_raw
 except (ValueError, TypeError):
     charge_power = 0.0
 
@@ -156,7 +160,7 @@ except (ValueError, TypeError):
 # ---------------------------------------------------------------------------
 try:
     charge_rate_raw = float(get("charge_rate", 0))
-    if is_hybrid:
+    if is_flat:
         charge_rate = charge_rate_raw / 10.0 if charge_rate_raw < 65535 else 0.0
     else:
         charge_rate = charge_rate_raw
@@ -196,7 +200,7 @@ except (ValueError, TypeError):
 # ---------------------------------------------------------------------------
 try:
     outdoor_temp_raw = float(get("outdoor_temp", 0))
-    if is_hybrid and outdoor_temp_raw > 1000:
+    if is_flat and outdoor_temp_raw > 1000:
         outdoor_temp = round(outdoor_temp_raw / 10.0 - 273.15, 1)
     else:
         outdoor_temp = outdoor_temp_raw
@@ -228,7 +232,7 @@ for fmt in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
     try:
         dt = datetime.strptime(car_captured_raw, fmt)
         dt = dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
-        timestamp = dt.strftime("%d.%m.%Y %H:%M")
+        timestamp = dt.strftime("%d.%m. - %H:%M")
         break
     except ValueError:
         continue
