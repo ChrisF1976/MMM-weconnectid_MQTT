@@ -5,9 +5,9 @@ A [MagicMirror²](https://magicmirror.builders/) module that displays live vehic
 Supports **pure electric vehicles** (ID.3, ID.4, ID.5, ID.7, e-Golf, …) and **plug-in hybrids** (Multivan, Golf GTE, …).
 
 > **Why this module?**  
-> Volkswagen shut down third-party access to the WeConnect API.  
-> The EU Data Act portal is the official replacement for personal data access.  
-> Data is delivered as ZIP files every ~15 minutes and is strictly read-only.
+> The classic WeConnect API used by many mirror modules no longer works reliably.  
+> The EU Data Act portal is the official way to access your own vehicle data.  
+> Data is delivered as ZIP files roughly every 15 minutes and is strictly read-only.
 
 ---
 
@@ -59,6 +59,8 @@ MMM-weconnectid_MQTT   (displayed on MagicMirror)
 
 ### Step 2 – Install the Python connector
 
+> Use connector **version 0.3.5 or newer**. Older versions fail to log in with HTTP 406.
+
 First check which Python version you will use:
 ```bash
 python3 --version
@@ -70,7 +72,7 @@ Install the connector for **that exact Python version** (replace `python3` with 
 
 ```bash
 sudo python3 -m pip install --no-deps --break-system-packages carconnectivity
-sudo python3 -m pip install --no-deps --break-system-packages \
+sudo python3 -m pip install --no-deps --upgrade --force-reinstall --break-system-packages \
     git+https://github.com/mikrohard/CarConnectivity-connector-vw-eu-data-act.git
 sudo python3 -m pip install --break-system-packages paho-mqtt
 ```
@@ -80,6 +82,7 @@ sudo python3 -m pip install --break-system-packages paho-mqtt
 
 Verify:
 ```bash
+python3 -m pip show carconnectivity-connector-vw-eu-data-act | grep Version
 python3 -c "from carconnectivity_connectors.vw_eu_data_act.client import EudaApiClient; print('OK')"
 ```
 
@@ -110,14 +113,24 @@ CARS = [
         "vin":        "WVWZZZE1ZNP000000",    # Vehicle VIN (see registration document)
         "identifier": "",                     # Leave empty – fetched automatically
         "topic":      "vwdata/mycar",         # MQTT topic – must match config.js
-        "type":       "electric",             # "electric" or "hybrid"
+        # "brand":    "SKODA",                # Only for non-VW brands, see below
     },
 ]
 ```
 
+The data format (electric / hybrid / e-Golf …) is **detected automatically**. The old `"type"` setting is no longer needed and is ignored.
+
+**Brand (optional):** the default is `VOLKSWAGEN_PASSENGER_CARS`. For other brands, set `"brand"` to one of:
+`SKODA`, `AUDI`, `SEAT`, `CUPRA`, `BENTLEY`, `VOLKSWAGEN_COMMERCIAL_VEHICLES`.
+A wrong brand typically leads to an HTTP 404 error from the portal.
+
 > **Finding your VIN:** It is printed on the vehicle registration document (field E) and on the dashboard visible through the windscreen.
 
+> **Never publish this file with your real credentials.** If you fork the repository, keep your passwords only in your local copy.
+
 ### Step 6 – Test vw_mqtt.py
+
+Use the same Python as in Step 2 (`python3`, `python3.9`, …):
 
 ```bash
 python3 ~/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.py
@@ -126,12 +139,15 @@ python3 ~/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.py
 You should see output like:
 ```
 INFO [WVWZZZE1ZNP000000] Downloading 20260808132701_WVWZZZE1ZNP000000.zip...
+INFO   vwdata/mycar/data_format = nested
 INFO   vwdata/mycar/soc = 80
 INFO   vwdata/mycar/odometer = 50313
 ...
 ```
 
-Verify MQTT data:
+The `data_format` line shows what was detected: `nested` (ID models) or `flat` (e-Golf, hybrids such as the Multivan). If you see the warning `No known fields found in this dataset`, see Troubleshooting.
+
+Stop the test with `Ctrl+C`, then verify the MQTT data:
 ```bash
 mosquitto_sub -h localhost -t "vwdata/#" -v
 ```
@@ -158,14 +174,12 @@ sudo cp ~/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.service \
 sudo nano /etc/systemd/system/vw_mqtt.service
 ```
 
-Change these lines (use the values from step 7a):
+Change these lines (use the values from step 7a). `ExecStart` must use the same Python that has `paho-mqtt` and the connector installed, for example `/usr/local/bin/python3.9`:
 ```ini
 User=chris
 WorkingDirectory=/home/chris/MagicMirror/modules/MMM-weconnectid_MQTT
 ExecStart=/usr/bin/python3 /home/chris/MagicMirror/modules/MMM-weconnectid_MQTT/vw_mqtt.py
 ```
-- replace `python3` with `python3.9` etc. if needed
-- replace `chris` with `pi` etc. to match your username
 
 Save with `Ctrl+O`, `Enter`, `Ctrl+X`.
 
@@ -194,12 +208,12 @@ You should see lines like `vwdata/mycar/soc = 80`. Press `Ctrl+C` to exit.
     header: "My Car",
     position: "bottom_right",
     config: {
-        username: "vwdata/mycar",       // MQTT topic – must match vw_mqtt.py
+        username: "vwdata/mycar",       // MQTT topic – must match "topic" in vw_mqtt.py
         vin: "WVWZZZE1ZNP000000",       // for display only
         fields: '{"SOC":"remainingSoC","Updated":"timestamp","Mileage":"odometer","Charge time":"remainingTime","Target SOC":"targetSoC","Power":"chargePower","km/h":"chargekmph"}',
         fields_charging: ["Charge time", "Target SOC", "Power", "km/h"],
         number: 4,
-        python: "python3",                //replace python3 with python3.9 etc. if needed
+        python: "python3",              // must be the same Python as in Step 2, e.g. "python3.9"
         maxHeight: "200px",
         maxWidth: "400px",
         remainingSOCyellow: 60,
@@ -211,7 +225,9 @@ You should see lines like `vwdata/mycar/soc = 80`. Press `Ctrl+C` to exit.
 },
 ```
 
-> **Multiple vehicles:** Add one module block per vehicle, each with a different `username` (= MQTT topic).
+> **Multiple vehicles:** Add one module block per vehicle, each with a different `username` (= MQTT topic) and its own `vin`.
+
+> **Hybrids:** Add `"Tank":"fuelLevel"` or `"Range":"gasolineRange"` to `fields` if you want the fuel level or range shown.
 
 ---
 
@@ -269,55 +285,34 @@ The `<module-identifier>` is printed in the MagicMirror developer console when t
 
 ## Troubleshooting
 
-### Wrong Python version
-→ Set `python: "python3.9"` (or whichever version has the dependencies installed) in `config.js`.
-
-### Login errors in the log (`HTTP 406` or "consent question")**
-
-Symptom: `sudo journalctl -u vw_mqtt` shows one of these messages every 15 minutes, and the mirror keeps showing old values:
-
-```
-Error: Login rejected (HTTP 406)
-Error: Login interrupted: the identity provider asks this account a consent question (marketing). ...
-```
-
-The service cannot log in to the VW portal, so no new data is published. The old values stay in MQTT, which is why the display looks "frozen" instead of showing an error.
-
-Two causes have been observed. Both may appear after VW changes something on the portal side.
-
-1. **The VW login asks for a consent.** Open https://eu-data-act.drivesomethinggreater.com in a normal browser, log in with the same VW account and answer the question that appears (for example a marketing consent, or "Allow"). Do this for **every** account listed in `vw_mqtt.py`.
-2. **The connector is outdated.** VW has changed its login flow more than once, and older connector versions then fail with `HTTP 406`. Update the connector for the same Python version that runs the service:
-
-```bash
-python3 -m pip show carconnectivity-connector-vw-eu-data-act | head -3
-sudo python3 -m pip install --no-deps --upgrade --force-reinstall \
-    git+https://github.com/mikrohard/CarConnectivity-connector-vw-eu-data-act.git
-```
-
-(Use `python3.9` instead of `python3` if that is the Python you configured.)
-
-After either fix, restart the service and check the log:
-
-```bash
-sudo systemctl restart vw_mqtt
-sudo journalctl -u vw_mqtt -n 40 --no-pager
-```
-
-Lines like `vwdata/<topic>/soc = ...` mean the login works again. If one account works and another still fails, the problem is specific to that account.
-
-You can test a single account without the service by running `vw_check.py` from this repository.
-
-### Module shows "Loading..."  
+**Module shows "Loading..."**  
 → Check if `vw_mqtt.py` is running: `sudo systemctl status vw_mqtt`  
 → Check MQTT data: `mosquitto_sub -h localhost -t "vwdata/#" -v`
 
-### Data is not updating**  
-→ The VW EU Data Act portal only delivers data when the vehicle is active (driving or charging). Parked vehicles may not receive updates for hours.  
-→ Check the portal: https://eu-data-act.drivesomethinggreater.com – new ZIP files should appear every ~15 minutes when the car is active.
+**Login fails (HTTP 406, "consent", "marketing")**  
+→ Update the connector to version 0.3.5 or newer (see Step 2).  
+→ Log in once at https://eu-data-act.drivesomethinggreater.com in a browser and answer the consent / marketing question that is shown. Without this, the login by script can fail.  
+→ Restart the service: `sudo systemctl restart vw_mqtt`
 
-### HTTP 500 errors from VW portal**  
+**HTTP 404 from the portal (e.g. Škoda Enyaq)**  
+→ Set the correct `"brand"` for that car in `vw_mqtt.py` (see Step 5).
+
+**"No known fields found" / 0 fields published**  
+→ Make sure the continuous data request (Step 1) is active and at least one ZIP file exists in the portal.  
+→ Open an issue with the field names from the log (without credentials).
+
+**Data looks old (timestamp hours or days behind the VW app)**  
+→ The module shows the capture time reported by the portal. For some cars the portal delivers measurements with a long delay, even though new ZIP files are created every ~15 minutes. This happens on the VW side and cannot be fixed by this module.  
+→ Check the live log: `sudo journalctl -u vw_mqtt -n 40 --no-pager`
+
+**HTTP 500 errors from the VW portal**  
 → The portal occasionally has outages. `vw_mqtt.py` retries automatically every 15 minutes.
 
+**Wrong Python version / "No module named paho"**  
+→ Use the same Python everywhere: in the service file (`ExecStart`), when installing `paho-mqtt` and the connector, and as `python` in `config.js`.
+
+**Range values look swapped (hybrids)**  
+→ For plug-in hybrids the portal reports the combustion range as "primary engine" and the electric range as "secondary engine". If your model behaves differently, swap the two entries in `FIELD_MAP_HYBRID` in `vw_mqtt.py` and open an issue.
 
 ---
 
