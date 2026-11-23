@@ -80,7 +80,7 @@ sudo python3 -m pip install --break-system-packages paho-mqtt
 > ⚠️ The Python version used here **must match** the `python` setting in `config.js`.  
 > Example: if you set `python: "python3.9"` in config.js, install with `sudo python3.9 -m pip install ...`
 
-Verify:
+Verify (replace `python3` with your Python, e.g. `python3.9`). The version must be 0.3.5 or higher:
 ```bash
 python3 -m pip show carconnectivity-connector-vw-eu-data-act | grep Version
 python3 -c "from carconnectivity_connectors.vw_eu_data_act.client import EudaApiClient; print('OK')"
