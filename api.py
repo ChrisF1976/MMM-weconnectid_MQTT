@@ -215,7 +215,7 @@ except (ValueError, TypeError):
 locked_raw = str(get("locked", "true"))
 if locked_raw == "2":
     locked = "true"
-elif locked_raw == "1":
+elif locked_raw in ("1", "3"):
     locked = "false"
 else:
     locked = locked_raw   # "true" or "false" as-is
