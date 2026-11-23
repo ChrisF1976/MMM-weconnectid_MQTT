@@ -181,7 +181,10 @@ try:
     if remaining_time_raw.endswith("s"):
         remaining_seconds = int(remaining_time_raw.replace("s", "").strip())
     else:
-        remaining_seconds = int(float(remaining_time_raw)) * 60
+        minutes = int(float(remaining_time_raw))
+        if minutes >= 65535:
+            raise ValueError("invalid")
+        remaining_seconds = minutes * 60
     remaining_time_fmt = time.strftime("%H:%M", time.gmtime(remaining_seconds))
 except (ValueError, TypeError):
     remaining_time_fmt = "00:00"
