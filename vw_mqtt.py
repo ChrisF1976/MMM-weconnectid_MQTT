@@ -58,8 +58,11 @@ CARS = [
         "identifier": "",
         # MQTT topic prefix – must match "username" in config.js
         "topic":      "vwdata/car1",
-        # "electric" or "hybrid"
-        "type":       "electric",
+        # Optional: only needed for non-VW brands.
+        # One of: SKODA, AUDI, SEAT, CUPRA, BENTLEY, VOLKSWAGEN_COMMERCIAL_VEHICLES
+        # Default: VOLKSWAGEN_PASSENGER_CARS
+        # "brand":    "SKODA",
+        # The data format (electric / hybrid / e-Golf ...) is detected automatically.
     },
     # Add more vehicles here:
     # {
@@ -68,7 +71,6 @@ CARS = [
     #     "vin":        "WV2ZZZST0TH000000",
     #     "identifier": "",
     #     "topic":      "vwdata/car2",
-    #     "type":       "hybrid",
     # },
 ]
 
