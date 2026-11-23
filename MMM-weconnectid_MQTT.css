@@ -14,18 +14,23 @@
   position: absolute;
 }
 
-#info-header {
-  display: inline;
-  font-size: 1rem;
+.info-box {
+  display: inline-block;
+  text-align: center;
 }
 
-#info {
-  display: inline;
-  font-size: 1rem;
+.info-header {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
-#text-table {
-  text-align: left;
+.info-value {
+  margin: 0;
+  font-size: 22px;
+  white-space: nowrap;
+  color: #fff;
 }
 
 #status {
