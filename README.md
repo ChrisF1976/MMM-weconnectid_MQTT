@@ -5,7 +5,7 @@ A [MagicMirror²](https://magicmirror.builders/) module that displays live vehic
 Supports **pure electric vehicles** (ID.3, ID.4, ID.5, ID.7, e-Golf, …) and **plug-in hybrids** (Multivan, Golf GTE, …).
 
 > **Why this module?**  
-> Volkswagen shut down third-party access to the WeConnect API in 2024.  
+> Volkswagen shut down third-party access to the WeConnect API.  
 > The EU Data Act portal is the official replacement for personal data access.  
 > Data is delivered as ZIP files every ~15 minutes and is strictly read-only.
 
